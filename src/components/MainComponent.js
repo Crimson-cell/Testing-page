@@ -9,9 +9,19 @@ import Header from './HeaderComponent';
 import Footer from './FooterComponent';
 import { Switch, Route, Redirect, withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { postComment, postFeedback, fetchDishes, fetchComments, fetchPromos, fetchLeaders, loginUser, logoutUser, fetchFavorites, googleLogin, postFavorite, deleteFavorite } from '../redux/ActionCreators';
+import { postComment, postFeedback, fetchDishes, fetchComments, fetchPromos, fetchLeaders, loginUser, logoutUser, fetchFavorites, googleLogin, postFavorite, deleteFavorite, postCursorActivity, newCursorActivity } from '../redux/ActionCreators';
 import { actions } from 'react-redux-form';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
+import * as uniqid from 'uniqid';
+
+const LEFT_MOUSE_DOWN = 'Left Mouse Down';
+const RIGHT_MOUSE_DOWN = 'Right Mouse Down';
+const MIDDLE_MOUSE_DOWN = 'Middle Mouse Down';
+const LEFT_MOUSE_UP = 'Left Mouse Up';
+const RIGHT_MOUSE_UP = 'Right Mouse Up';
+const MIDDLE_MOUSE_UP = 'Middle Mouse Up';
+const DEFAULT_MOUSE_DOWN = 'Mouse Down';
+const DEFAULT_MOUSE_UP = 'Mouse Up';
 
 const mapStateToProps = state => {
     return {
@@ -37,10 +47,24 @@ const mapDispatchToProps = (dispatch) => ({
   fetchFavorites: () => dispatch(fetchFavorites()),
   googleLogin: () => dispatch(googleLogin()),
   postFavorite: (dishId) => dispatch(postFavorite(dishId)),
-  deleteFavorite: (dishId) => dispatch(deleteFavorite(dishId))
+  deleteFavorite: (dishId) => dispatch(deleteFavorite(dishId)),
+  postCursorActivity: (event) => dispatch(postCursorActivity(event)),
+  newCursorActivity: (user) => dispatch(newCursorActivity(user))
 });
 
 class Main extends Component {
+
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      user_id: uniqid()
+    }
+
+    this.reportMouseDown = this.reportMouseDown.bind(this);
+    this.reportMouseUp = this.reportMouseUp.bind(this);
+    this.reportMouseMove = this.reportMouseMove.bind(this);
+  }
 
   componentDidMount() {
     this.props.fetchDishes();
@@ -48,10 +72,82 @@ class Main extends Component {
     this.props.fetchPromos();
     this.props.fetchLeaders();
     this.props.fetchFavorites();
+    this.props.newCursorActivity({
+      user_id: this.state.user_id,
+      events: []
+    });
   }
 
   componentWillUnmount() {
     this.props.logoutUser();
+  }
+
+  reportMouseDown(event) {
+    let newEVent = {
+        timestamp: new Date().getTime().toString(),
+        cor_X: event.clientX,
+        cor_Y: event.clientY,
+        tagID: document.elementFromPoint(event.clientX, event.clientY).id
+    }
+    switch (event) {
+      case 1:
+        newEVent.type = LEFT_MOUSE_DOWN;
+        break;
+      case 2:
+        newEVent.type = MIDDLE_MOUSE_DOWN;
+        break;
+      case 3:
+        newEVent.type = RIGHT_MOUSE_DOWN;
+        break;
+      default:
+        newEVent.type = DEFAULT_MOUSE_DOWN;
+    }
+    let user_id = this.state.user_id;
+    this.props.postCursorActivity([newEVent, user_id]);
+  }
+
+  reportMouseUp(event) {
+    let newEVent = {
+      timestamp: new Date().getTime().toString(),
+      cor_X: event.clientX,
+      cor_Y: event.clientY,
+      tagID: document.elementFromPoint(event.clientX, event.clientY).id
+    }
+    switch (event) {
+      case 1:
+        newEVent.type = LEFT_MOUSE_UP;
+        break;
+      case 2:
+        newEVent.type = MIDDLE_MOUSE_UP;
+        break;
+      case 3:
+        newEVent.type = RIGHT_MOUSE_UP;
+        break;
+      default:
+        newEVent.type = DEFAULT_MOUSE_UP;
+    }
+    let user_id = this.state.user_id;
+    this.props.postCursorActivity([newEVent, user_id]);
+  }
+
+  reportMouseMove(event) {
+    let newEVent = {
+      timestamp: new Date().getTime().toString(),
+      type: "Mouse Move",
+      cor_X: event.clientX,
+      cor_Y: event.clientY,
+      tagID: document.elementFromPoint(event.clientX, event.clientY).id
+    };
+    let user_id = this.state.user_id;
+    this.props.postCursorActivity([newEVent, user_id]);
+  }
+
+  reportKeyDown(event) {
+
+  }
+
+  reportKeyUp(event) {
+    
   }
 
   render() {
@@ -81,7 +177,8 @@ class Main extends Component {
           comments={this.props.comments.comments.filter((comment) => comment.dish === match.params.dishId)}
           commentsErrMess={this.props.comments.errMess}
           postComment={this.props.postComment}
-          favorite={this.props.favorites.favorites.dishes.some((dish) => dish === match.params.dishId)}
+          favorite={this.props.favorites.favorites?
+            this.props.favorites.favorites.dishes.some((dish) => dish === match.params.dishId) : false}
           postFavorite={this.props.postFavorite}
           />
         :
@@ -109,7 +206,9 @@ class Main extends Component {
     );
 
     return (
-      <div>
+      <div onMouseDown={(e) => this.reportMouseDown(e)} 
+        onMouseUp={(e) => this.reportMouseUp(e)} 
+        onMouseMove={(e) => this.reportMouseMove(e)}>
         <Header auth={this.props.auth} 
           loginUser={this.props.loginUser} 
           logoutUser={this.props.logoutUser}
@@ -119,7 +218,7 @@ class Main extends Component {
           <CSSTransition key={this.props.location.key} classNames="page" timeout={300}>
             <Switch>
               <Route path="/home" component={HomePage} />
-              <Route exact path='/aboutus' component={() => <About leaders={this.props.leaders} />} />} />
+              <Route exact path='/aboutus' component={() => <About leaders={this.props.leaders} />} />
               <Route exact path="/menu" component={() => <Menu dishes={this.props.dishes} />} />
               <Route path="/menu/:dishId" component={DishWithId} />
               <PrivateRoute exact path="/favorites" component={() => <Favorites favorites={this.props.favorites} dishes={this.props.dishes} deleteFavorite={this.props.deleteFavorite} />} />

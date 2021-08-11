@@ -16,6 +16,7 @@ function RenderCard({item, isLoading, errMess}) {
     }
     else
         return(
+            item?
             <FadeTransform in 
                 transformProps={{
                     exitTransform: 'scale(0.5) translateY(-50%)'
@@ -28,7 +29,7 @@ function RenderCard({item, isLoading, errMess}) {
                         <CardText>{item.description}</CardText>
                     </CardBody>
                 </Card>
-            </FadeTransform>
+            </FadeTransform>:null
         );
 }
 

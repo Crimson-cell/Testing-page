@@ -44,7 +44,7 @@ class Header extends Component {
         event.preventDefault();
     }
 
-    handleLogout() {
+    handleLogout(event) {
         this.props.logoutUser();
     }
 
@@ -89,7 +89,7 @@ class Header extends Component {
                             <Nav className="ml-auto" navbar>
                                 <NavItem>
                                     { !this.props.auth.isAuthenticated ?
-                                        <Button outline onClick={this.toggleModal}>
+                                        <Button outline onClick={this.toggleModal} id="loginButton">
                                             <span className="fa fa-sign-in fa-lg"></span> Login
                                             {this.props.auth.isFetching ?
                                                 <span className="fa fa-spinner fa-pulse fa-fw"></span>
@@ -99,7 +99,7 @@ class Header extends Component {
                                         :
                                         <div>
                                         <div className="navbar-text mr-3">{this.props.auth.user.displayName}</div>
-                                        <Button outline onClick={this.handleLogout}>
+                                        <Button outline onClick={this.handleLogout} id="logoutButton">
                                             <span className="fa fa-sign-out fa-lg"></span> Logout
                                             {this.props.auth.isFetching ?
                                                 <span className="fa fa-spinner fa-pulse fa-fw"></span>
@@ -145,7 +145,7 @@ class Header extends Component {
                                     Remember me
                                 </Label>
                             </FormGroup>
-                            <Button type="submit" value="submit" color="primary">Login</Button>
+                            <Button type="submit" value="submit" color="primary" id="login">Login</Button>
                         </Form>
                         <p></p>
                         <Button color="danger" onClick={this.handleGoogleLogin}><span className="fa fa-google fa-lg"></span> Login with Google</Button>

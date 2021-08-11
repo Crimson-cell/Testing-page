@@ -49,7 +49,7 @@ import { FadeTransform, Fade, Stagger } from 'react-animation-components';
                                         <li>
                                         <p>{comment.comment}</p>
                                         <p>{comment.rating} stars</p>
-                                        <p>-- {comment.author.firstname} {comment.author.lastname} , {new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day:'2-digit'}).format(new Date(Date.parse(comment.updatedAt.toDate())))}</p>
+                                        <p>-- {comment.author.firstname} {comment.author.lastname} , {new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day:'2-digit'}).format(new Date(Date.parse(comment.updatedAt.toDateString())))}</p>
                                         </li>
                                     </Fade>
                                 );
