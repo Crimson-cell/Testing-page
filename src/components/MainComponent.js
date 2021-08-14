@@ -89,14 +89,14 @@ class Main extends Component {
         cor_Y: event.clientY,
         tagID: document.elementFromPoint(event.clientX, event.clientY).id
     }
-    switch (event) {
-      case 1:
+    switch (event.button) {
+      case 0:
         newEVent.type = LEFT_MOUSE_DOWN;
         break;
-      case 2:
+      case 1:
         newEVent.type = MIDDLE_MOUSE_DOWN;
         break;
-      case 3:
+      case 2:
         newEVent.type = RIGHT_MOUSE_DOWN;
         break;
       default:
@@ -113,14 +113,14 @@ class Main extends Component {
       cor_Y: event.clientY,
       tagID: document.elementFromPoint(event.clientX, event.clientY).id
     }
-    switch (event) {
-      case 1:
+    switch (event.button) {
+      case 0:
         newEVent.type = LEFT_MOUSE_UP;
         break;
-      case 2:
+      case 1:
         newEVent.type = MIDDLE_MOUSE_UP;
         break;
-      case 3:
+      case 2:
         newEVent.type = RIGHT_MOUSE_UP;
         break;
       default:
